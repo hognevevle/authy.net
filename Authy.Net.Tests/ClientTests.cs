@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Configuration;
 using System.IO;
+using Authy.Net.Models;
 
 namespace Authy.Net.Tests
 {

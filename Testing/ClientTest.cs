@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using Authy.Net;
 using System;
+using Authy.Net.Models;
 
 namespace Testing {
     /// <remarks>

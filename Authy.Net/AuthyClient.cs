@@ -4,6 +4,7 @@ using System.Net;
 using System.Text;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using Authy.Net.Models;
 
 namespace Authy.Net
 {
