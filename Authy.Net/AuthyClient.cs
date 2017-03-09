@@ -121,15 +121,7 @@ namespace Authy.Net
         {
             if ( !AuthyHelpers.TokenIsValid(token))
             {
-                Dictionary<string, string> errors = new Dictionary<string, string>();
-                errors.Add("token", "is invalid");
-
-                return new VerifyTokenResult() {
-                    Status = AuthyStatus.BadRequest,
-                    Success = false,
-                    Message = "Token is invalid.",
-                    Errors = errors
-                };
+                throw new AuthyTokenInvalidException($"Token '{token}' is invalid.");
             }
 
             token = AuthyHelpers.SanitizeNumber(token);

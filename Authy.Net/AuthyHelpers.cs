@@ -7,7 +7,6 @@ namespace Authy.Net
 {
     public class AuthyHelpers
     {
-
         ///<summary>
         /// Remove all non-digits from the string
         /// </summary>
