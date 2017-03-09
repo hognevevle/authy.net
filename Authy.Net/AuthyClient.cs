@@ -207,7 +207,7 @@ namespace Authy.Net
         /// If set to 0, the approval request won't expire. Expiration time can be set to several months, without affecting security. 
         /// For certain use cases, it might be important to set a short expiration time. However, expiration time should not affect security by enforcing users to act too quickly. 
         /// Instead, the users should be able to take their time to check the details of the approval requests before approving/denying it.</param>
-        /// <returns>RegisterUserResult object containing the details about the attempted register user request</returns>
+        /// <returns>CreateApprovalRequestResult object containing the uuid for the approval request.</returns>
         public CreateApprovalRequestResult CreateApprovalRequest(string userId, string message, Dictionary<string, string> details, Dictionary<string, string> hiddenDetails, int secondsToExpire = 86400)
         {
             var request = new NameValueCollection()
@@ -248,6 +248,26 @@ namespace Authy.Net
 
                 var apiResponse = JsonConvert.DeserializeObject<CreateApprovalRequestResult>(textResponse);
                 apiResponse.RawResponse = textResponse;
+                apiResponse.Status = AuthyStatus.Success;
+
+                return apiResponse;
+            });
+        }
+
+        /// <summary>
+        /// This will create a new approval request for the given Authy ID and send it to the end user along with a push notification to the Authy smartphone application.
+        /// </summary>
+        /// <param name="uuid">Required. The approval request ID. (Obtained from the response to an ApprovalRequest).</param>
+        /// <returns>RegisterUserResult object containing the details about the attempted register user request</returns>
+        public CheckApprovalRequestStatusResult CheckApprovalRequestStatus(string uuid)
+        {
+            var url = string.Format("{0}/onetouch/json/approval_requests/{1}?api_key={2}", BaseUrl, uuid, apiKey);
+
+            return Execute(client =>
+            {
+                var response = client.DownloadString(url);
+                var apiResponse = JsonConvert.DeserializeObject<CheckApprovalRequestStatusResult>(response);
+                apiResponse.RawResponse = response;
                 apiResponse.Status = AuthyStatus.Success;
 
                 return apiResponse;
