@@ -5,7 +5,6 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Configuration;
 using System.IO;
-using Authy.Net.Models;
 
 namespace Authy.Net.Tests
 {
@@ -64,11 +63,13 @@ namespace Authy.Net.Tests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(AuthyInvalidApiKeyException), "An invalid api key was inappropriately allowed.")]
         public void Registration_BadApiKey()
         {
             var client = new AuthyClient(badApiKey, true);
             var result = client.RegisterUser("test@test.com", "123-456-7890");
             Assert.AreEqual(AuthyStatus.Unauthorized, result.Status);
+            
         }
 
         [TestMethod]
