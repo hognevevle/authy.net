@@ -4,6 +4,7 @@ using System.Net;
 using System.Text;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using Authy.Net.Helpers;
 using Authy.Net.Models;
 
 namespace Authy.Net
@@ -20,6 +21,10 @@ namespace Authy.Net
     {
         private readonly string apiKey;
         private readonly bool test;
+
+        private string BaseUrl => test 
+            ? "http://sandbox-api.authy.com" 
+            : "https://api.authy.com";
 
         /// <summary>
         /// Creates an instance of the Authy client
@@ -48,7 +53,7 @@ namespace Authy.Net
                 {"user[country_code]",countryCode.ToString()}
             };
 
-            var url = string.Format("{0}/protected/json/users/new?api_key={1}", this.baseUrl, this.apiKey);
+            var url = string.Format("{0}/protected/json/users/new?api_key={1}", this.BaseUrl, this.apiKey);
             return this.Execute<RegisterUserResult>(client =>
             {
                 var response = client.UploadValues(url, request);
@@ -58,6 +63,28 @@ namespace Authy.Net
                 apiResponse.RawResponse = textResponse;
                 apiResponse.Status = AuthyStatus.Success;
                 apiResponse.UserId = apiResponse.User["id"];
+
+                return apiResponse;
+            });
+        }
+
+        /// <summary>
+        /// Get user status
+        /// </summary>
+        /// <param name="userId">The user for which you would like to get status</param>
+        /// <returns>RegisterUserResult object containing the details about the attempted register user request</returns>
+        public UserStatusResult GetUserStatus(string userId)
+        {
+            var url = string.Format("{0}/protected/json/users/{1}/status?api_key={2}", this.BaseUrl, userId, this.apiKey);
+
+            return Execute(client =>
+            {
+                var response = client.DownloadString(url);
+
+                var apiResponse = JsonConvert.DeserializeObject<UserStatusResult>(response);
+                //apiResponse.RawResponse = response;
+                //apiResponse.Status = AuthyStatus.Success;
+                //apiResponse.UserId = apiResponse.User["id"];
 
                 return apiResponse;
             });
@@ -87,7 +114,7 @@ namespace Authy.Net
             token = AuthyHelpers.SanitizeNumber(token);
             userId = AuthyHelpers.SanitizeNumber(userId);
 
-            var url = string.Format("{0}/protected/json/verify/{1}/{2}?api_key={3}{4}", this.baseUrl, token, userId, this.apiKey, force ? "&force=true" : string.Empty);
+            var url = string.Format("{0}/protected/json/verify/{1}/{2}?api_key={3}{4}", this.BaseUrl, token, userId, this.apiKey, force ? "&force=true" : string.Empty);
             return this.Execute<VerifyTokenResult>(client =>
             {
                 var response = client.DownloadString(url);
@@ -103,6 +130,7 @@ namespace Authy.Net
                     apiResponse.Success = false;
                     apiResponse.Status = AuthyStatus.Unauthorized;
                 }
+
                 apiResponse.RawResponse = response;
 
                 return apiResponse;
@@ -118,7 +146,7 @@ namespace Authy.Net
         {
             userId = AuthyHelpers.SanitizeNumber(userId);
 
-            var url = string.Format("{0}/protected/json/sms/{1}?api_key={2}{3}", this.baseUrl, userId, this.apiKey, force ? "&force=true" : string.Empty);
+            var url = string.Format("{0}/protected/json/sms/{1}?api_key={2}{3}", this.BaseUrl, userId, this.apiKey, force ? "&force=true" : string.Empty);
             return this.Execute<SendSmsResult>(client =>
             {
                 var response = client.DownloadString(url);
@@ -140,7 +168,7 @@ namespace Authy.Net
         {
             userId = AuthyHelpers.SanitizeNumber(userId);
 
-            var url = string.Format("{0}/protected/json/call/{1}?api_key={2}{3}", this.baseUrl, userId, this.apiKey, force ? "&force=true" : string.Empty);
+            var url = string.Format("{0}/protected/json/call/{1}?api_key={2}{3}", this.BaseUrl, userId, this.apiKey, force ? "&force=true" : string.Empty);
             return this.Execute<AuthyResult>(client =>
             {
                 var response = client.DownloadString(url);
@@ -172,13 +200,23 @@ namespace Authy.Net
             {
                 var response = webex.Response.GetResponseStream();
 
+                if (response == null)
+                {
+                    throw new AuthyNullResponseException(null);
+                }
+
                 string body;
                 using (var reader = new StreamReader(response))
                 {
                     body = reader.ReadToEnd();
                 }
 
-                TResult result = JsonConvert.DeserializeObject<TResult>(body);
+                var result = JsonConvert.DeserializeObject<TResult>(body);
+
+                if (result.ErrorCode != null)
+                {
+                    ErrorHelper.CheckErrorCodeAndThrow(result.ErrorCode, result.Message);
+                }
 
                 switch (((HttpWebResponse)webex.Response).StatusCode)
                 {
@@ -199,11 +237,6 @@ namespace Authy.Net
             {
                 client.Dispose();
             }
-        }
-
-        private string baseUrl
-        {
-            get { return this.test ? "http://sandbox-api.authy.com" : "https://api.authy.com"; }
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Authy.Net.Models
         /// <summary>
         /// The user id of a succesful registration event
         /// </summary>
-        public bool status { get; set; }
+        //public bool status { get; set; }
 
         /// <summary>
         /// The user information on Authy API

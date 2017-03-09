@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Authy.Net.Models;
 
 namespace Authy.Net
 {

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace Authy.Net.Models
 {
@@ -10,6 +11,7 @@ namespace Authy.Net.Models
         /// <summary>
         /// The status of a request
         /// </summary>
+        [JsonIgnore]
         public AuthyStatus Status { get; set; }
 
         /// <summary>
@@ -26,6 +28,13 @@ namespace Authy.Net.Models
         /// The message from the API
         /// </summary>
         public string Message { get; set; }
+
+        /// <summary>
+        /// The error code from the API
+        /// </summary>
+
+        [JsonProperty("error_code")]
+        public string ErrorCode { get; set; }
 
         /// <summary>
         /// The list of erros
