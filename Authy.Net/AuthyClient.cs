@@ -90,6 +90,28 @@ namespace Authy.Net
         }
 
         /// <summary>
+        /// Get user status
+        /// </summary>
+        /// <param name="userId">The user for which you would like to get status</param>
+        /// <returns>RegisterUserResult object containing the details about the attempted register user request</returns>
+        public AuthyResult DeleteUser(string userId)
+        {
+            var url = string.Format("{0}/protected/json/users/{1}/delete", BaseUrl, userId);
+
+            return Execute(client =>
+            {
+                client.Headers.Add("X-Authy-API-Key", apiKey);
+                var response = client.UploadString(url, "");
+
+                var apiResponse = JsonConvert.DeserializeObject<AuthyResult>(response);
+                apiResponse.RawResponse = response;
+                apiResponse.Status = AuthyStatus.Success;
+
+                return apiResponse;
+            });
+        }
+
+        /// <summary>
         /// Verify a token with authy
         /// </summary>
         /// <param name="userId">The Authy user id</param>
