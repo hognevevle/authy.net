@@ -50,6 +50,7 @@
     <Compile Include="Models\AuthyResult.cs" />
     <Compile Include="Models\AuthyStatus.cs" />
     <Compile Include="AuthyClient.cs" />
+    <Compile Include="Models\CreateApprovalRequestResult.cs" />
     <Compile Include="Models\RegisterUserResult.cs" />
     <Compile Include="Models\SendSmsResult.cs" />
     <Compile Include="Models\StartPhoneCallResult.cs" />

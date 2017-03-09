@@ -4,6 +4,8 @@ using System.Net;
 using System.Text;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Linq;
 using Authy.Net.Helpers;
 using Authy.Net.Models;
 
@@ -22,8 +24,8 @@ namespace Authy.Net
         private readonly string apiKey;
         private readonly bool test;
 
-        private string BaseUrl => test 
-            ? "http://sandbox-api.authy.com" 
+        private string BaseUrl => test
+            ? "http://sandbox-api.authy.com"
             : "https://api.authy.com";
 
         /// <summary>
@@ -119,7 +121,7 @@ namespace Authy.Net
         /// <param name="force">Force verification to occur even if the user isn't registered (if the user hasn't finished registering the default is to succesfully validate)</param>
         public VerifyTokenResult VerifyToken(string userId, string token, bool force = false)
         {
-            if ( !AuthyHelpers.TokenIsValid(token))
+            if (!AuthyHelpers.TokenIsValid(token))
             {
                 throw new AuthyTokenInvalidException($"Token '{token}' is invalid.");
             }
@@ -189,6 +191,64 @@ namespace Authy.Net
                 AuthyResult apiResponse = JsonConvert.DeserializeObject<AuthyResult>(response);
                 apiResponse.Status = AuthyStatus.Success;
                 apiResponse.RawResponse = response;
+
+                return apiResponse;
+            });
+        }
+
+        /// <summary>
+        /// This will create a new approval request for the given Authy ID and send it to the end user along with a push notification to the Authy smartphone application.
+        /// </summary>
+        /// <param name="userId">The Authy user id.</param>
+        /// <param name="message">Required. The message shown to the user when the approval request arrives.</param>
+        /// <param name="details">Dictionary containing the ApprovalRequest details that will be shown to user</param>
+        /// <param name="hiddenDetails">Dictionary containing the approval request details hidden to user.</param>
+        /// <param name="secondsToExpire">Optional, defaults to 86400 (one day). Number of seconds that the approval request will be available for being responded. 
+        /// If set to 0, the approval request won't expire. Expiration time can be set to several months, without affecting security. 
+        /// For certain use cases, it might be important to set a short expiration time. However, expiration time should not affect security by enforcing users to act too quickly. 
+        /// Instead, the users should be able to take their time to check the details of the approval requests before approving/denying it.</param>
+        /// <returns>RegisterUserResult object containing the details about the attempted register user request</returns>
+        public CreateApprovalRequestResult CreateApprovalRequest(string userId, string message, Dictionary<string, string> details, Dictionary<string, string> hiddenDetails, int secondsToExpire = 86400)
+        {
+            var request = new NameValueCollection()
+            {
+                {"api_key", apiKey},
+                {"message", message},
+                {"seconds_to_expire", secondsToExpire.ToString()}
+            };
+
+            if (details != null)
+            {
+                foreach (var detail in details)
+                {
+                    request.Add(new NameValueCollection
+                    {
+                        {$"details[{detail.Key}]", detail.Value}
+                    });
+                }
+            }
+
+            if (hiddenDetails != null)
+            {
+                foreach (var detail in hiddenDetails)
+                {
+                    request.Add(new NameValueCollection
+                    {
+                        {$"hidden_details[{detail.Key}]", detail.Value}
+                    });
+                }
+            }
+
+            var url = string.Format("{0}/onetouch/json/users/{1}/approval_requests", BaseUrl, userId);
+
+            return Execute(client =>
+            {
+                var response = client.UploadValues(url, request);
+                var textResponse = Encoding.ASCII.GetString(response);
+
+                var apiResponse = JsonConvert.DeserializeObject<CreateApprovalRequestResult>(textResponse);
+                apiResponse.RawResponse = textResponse;
+                apiResponse.Status = AuthyStatus.Success;
 
                 return apiResponse;
             });
