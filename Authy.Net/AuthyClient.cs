@@ -82,9 +82,8 @@ namespace Authy.Net
                 var response = client.DownloadString(url);
 
                 var apiResponse = JsonConvert.DeserializeObject<UserStatusResult>(response);
-                //apiResponse.RawResponse = response;
-                //apiResponse.Status = AuthyStatus.Success;
-                //apiResponse.UserId = apiResponse.User["id"];
+                apiResponse.RawResponse = response;
+                apiResponse.Status = AuthyStatus.Success;
 
                 return apiResponse;
             });

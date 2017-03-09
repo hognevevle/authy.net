@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace Authy.Net.Models
 {
@@ -7,14 +8,64 @@ namespace Authy.Net.Models
     /// </summary>
     public class UserStatusResult : AuthyResult
     {
+        [JsonProperty("status")]
+        public UserStatusResultDto UserStatus;
+    }
+
+    public class UserStatusResultDto
+    {
         /// <summary>
-        /// The user id of a succesful registration event
+        /// The user id of the user
         /// </summary>
-        //public bool status { get; set; }
+        [JsonProperty("authy_id")]
+        public string UserId { get; set; }
 
         /// <summary>
-        /// The user information on Authy API
+        /// True when the user has used a valid code before.
         /// </summary>
-        public Dictionary<string, string> User { get; set;}
+        [JsonProperty("confirmed")]
+        public bool Confirmed { get; set; }
+
+        /// <summary>
+        /// True when the Authy Mobile/Desktop App was registered.
+        /// </summary>
+        [JsonProperty("registered")]
+        public bool Registered { get; set; }
+
+        /// <summary>
+        /// Country code
+        /// </summary>
+        [JsonProperty("country_code")]
+        public string CountryCode { get; set; }
+
+        /// <summary>
+        /// Last 4 digits of phone number.
+        /// </summary>
+        [JsonProperty("phone_number")]
+        public string PhoneNumber { get; set; }
+
+        /// <summary>
+        /// True when account has hard token.
+        /// </summary>
+        [JsonProperty("has_hard_token")]
+        public bool HasHardToken { get; set; }
+
+        /// <summary>
+        /// True when account is disabled
+        /// </summary>
+        [JsonProperty("account_disabled")]
+        public bool AccountDisabled { get; set; }
+
+        /// <summary>
+        /// The devices connected to the account
+        /// </summary>
+        [JsonProperty("devices")]
+        public List<string> Devices { get; set; }
+
+        /// <summary>
+        /// Detailed device information
+        /// </summary>
+        [JsonProperty("detailed_devices")]
+        public List<Dictionary<string, string>> DetailedDevices { get; set; }
     }
 }
