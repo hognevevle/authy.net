@@ -11,7 +11,7 @@
         public string Cellphone { get; set; }
 
         /// <summary>
-        /// The device to which the SMS was sent
+        /// The name of the most recent device used by the user. This is only returned when the SMS was ignored.
         /// </summary>
         public string Device { get; set; }
 
