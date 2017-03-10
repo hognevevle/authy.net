@@ -55,7 +55,7 @@ namespace Authy.Net
                 var response = client.UploadValues(url, request);
                 var textResponse = Encoding.ASCII.GetString(response);
 
-                RegisterUserResult apiResponse = JsonConvert.DeserializeObject<RegisterUserResult>(textResponse);
+                var apiResponse = JsonConvert.DeserializeObject<RegisterUserResult>(textResponse);
                 apiResponse.RawResponse = textResponse;
                 apiResponse.Status = AuthyStatus.Success;
                 apiResponse.UserId = apiResponse.User["id"];
@@ -108,11 +108,15 @@ namespace Authy.Net
         }
 
         /// <summary>
-        /// Verify a token with authy
+        /// Verify a token with Authy
         /// </summary>
         /// <param name="userId">The Authy user id</param>
         /// <param name="token">The token to verify</param>
         /// <param name="force">Force verification to occur even if the user isn't registered (if the user hasn't finished registering the default is to succesfully validate)</param>
+        /// <exception cref="AuthyTokenInvalidException">Token was invalid.</exception>
+        /// <exception cref="AuthyTokenReusedException">Token is already used.</exception>
+        /// <exception cref="AuthyUserNotFoundException">User was not found.</exception>
+
         public VerifyTokenResult VerifyToken(string userId, string token, bool force = false)
         {
             if (!AuthyHelpers.TokenIsValid(token))
@@ -129,7 +133,7 @@ namespace Authy.Net
             {
                 var response = client.DownloadString(url);
 
-                VerifyTokenResult apiResponse = JsonConvert.DeserializeObject<VerifyTokenResult>(response);
+                var apiResponse = JsonConvert.DeserializeObject<VerifyTokenResult>(response);
 
                 if (apiResponse.Token == "is valid")
                 {
@@ -157,12 +161,12 @@ namespace Authy.Net
             userId = AuthyHelpers.SanitizeNumber(userId);
 
             var url = string.Format("{0}/protected/json/sms/{1}?api_key={2}{3}", BaseUrl, userId, _apiKey, force ? "&force=true" : string.Empty);
-
+            
             return Execute(client =>
             {
                 var response = client.DownloadString(url);
 
-                SendSmsResult apiResponse = JsonConvert.DeserializeObject<SendSmsResult>(response);
+                var apiResponse = JsonConvert.DeserializeObject<SendSmsResult>(response);
                 apiResponse.Status = AuthyStatus.Success;
                 apiResponse.RawResponse = response;
 
@@ -185,7 +189,7 @@ namespace Authy.Net
             {
                 var response = client.DownloadString(url);
 
-                AuthyResult apiResponse = JsonConvert.DeserializeObject<AuthyResult>(response);
+                var apiResponse = JsonConvert.DeserializeObject<AuthyResult>(response);
                 apiResponse.Status = AuthyStatus.Success;
                 apiResponse.RawResponse = response;
 
@@ -256,6 +260,9 @@ namespace Authy.Net
         /// </summary>
         /// <param name="uuid">Required. The approval request ID. (Obtained from the response to an ApprovalRequest).</param>
         /// <returns>RegisterUserResult object containing the details about the attempted register user request</returns>
+        /// <exception cref="AuthyOneTouchApprovalRequestNotFoundException">Onetouch Approval request not found.</exception>
+        /// <exception cref="AuthyOneTouchUnregisteredUserException">Application has not added user.</exception>
+        /// <exception cref="AuthyOneTouchDeviceNotFoundException">User does not have OneTouch device for given application.</exception>
         public CheckApprovalRequestStatusResult CheckApprovalRequestStatus(string uuid)
         {
             var url = string.Format("{0}/onetouch/json/approval_requests/{1}?api_key={2}", BaseUrl, uuid, _apiKey);
@@ -272,7 +279,7 @@ namespace Authy.Net
         }
 
         /// <summary>
-        /// This will request a verification code to be sent to a user.
+        /// This will request a verification code to be sent to a phone number. The verification code is valid for 10 minutes. Subsequent calls to the API within the expiration time will send the same verification code.
         /// </summary>
         /// <param name="via">Either "sms" or "call".</param>
         /// <param name="phoneNumber">The phone number to send the verification code.</param>
@@ -294,7 +301,7 @@ namespace Authy.Net
         /// Korean (ko), Norwegian (nb), Deutch (nl), Polish (pl), Russian (ru), Swedish (sv), Mandarin (zh-CN),Cantonese (zh-HK). We support the format country-region as 
         /// described in IETF's BPC 47. If no region is given (or supported), there will be a default by country.
         /// </param>
-        /// <returns>PhoneVerificationRequestResult object containing details about the number.</returns>
+        /// <returns>The response will include the carrier, whether the number is a cellphone or not, the verification code expiration time, the request UUID and the request status.</returns>
         /// <exception cref="AuthyInvalidPhoneNumberException">If the phone number is invalid.</exception>
         /// <exception cref="AuthyPhoneVerificationCouldNotBeCreatedException">If an error occured when initiating the verification. Check your input data.</exception>
         public PhoneVerificationRequestResult RequestPhoneVerification(string via, string phoneNumber, int countryCode, string locale = null, int? codeLength = null, string customMessage = null)
@@ -355,7 +362,7 @@ namespace Authy.Net
         /// <returns>RegisterUserResult object containing the details about the attempted register user request</returns>
         /// <exception cref="AuthyVerificationCodeIsIncorrectException">If the code is invalid.</exception>
         /// <exception cref="AuthyInvalidPhoneNumberException">If the phone number is invalid.</exception>
-        /// <exception cref="AuthyPhoneVerificationNotFoundException">If no verification request for the provided number exists.</exception>
+        /// <exception cref="AuthyPhoneVerificationNotFoundException">If no verification request for the provided number exists, or request has expired.</exception>
         public PhoneVerificationCheckResult VerifyPhoneVerification(string phoneNumber, int countryCode, string verificationCode)
         {
             var url = string.Format("{0}/protected/json/phones/verification/check?api_key={1}&country_code={2}&phone_number={3}&verification_code={4}", 
