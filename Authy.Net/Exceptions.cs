@@ -408,9 +408,9 @@ namespace Authy.Net
         }
     }
 
-    public class AuthyAccessBlockedForMultiDeviceUser : AuthyException
+    public class AuthyAccessBlockedForMultiDeviceUserException : AuthyException
     {
-        public AuthyAccessBlockedForMultiDeviceUser(string message) : base(message)
+        public AuthyAccessBlockedForMultiDeviceUserException(string message) : base(message)
         {
         }
     }
@@ -478,9 +478,9 @@ namespace Authy.Net
         }
     }
 
-    public class AuthyInvalidApprovalRequest : AuthyException
+    public class AuthyInvalidApprovalRequestException : AuthyException
     {
-        public AuthyInvalidApprovalRequest(string message) : base(message)
+        public AuthyInvalidApprovalRequestException(string message) : base(message)
         {
         }
     }

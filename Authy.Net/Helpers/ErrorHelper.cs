@@ -143,7 +143,7 @@
                 case "60064": throw new AuthyOneTouchEnableFailedException(message);
                 case "60065": throw new AuthyOneTouchMustBeEnabledException(message);
                 case "60066": throw new AuthyCallbackInformationSaveFailedException(message);
-                case "60067": throw new AuthyAccessBlockedForMultiDeviceUser(message);
+                case "60067": throw new AuthyAccessBlockedForMultiDeviceUserException(message);
                 case "60068": throw new AuthyRegistrationDeviceUpdateFailedException(message);
                 case "60069": throw new AuthyAccessKeyCanNotBeSavedException(message);
                 case "60070": throw new AuthyInvalidApplicationException(message);
@@ -154,7 +154,7 @@
                 case "60075": throw new AuthyApplicationCouldNotBeDeletedException(message);
                 case "60078": throw new AuthyInvalidCountryCodeException(message);
                 case "60079": throw new AuthyApprovalRequestNotPendingException(message);
-                case "60080": throw new AuthyInvalidApprovalRequest(message);
+                case "60080": throw new AuthyInvalidApprovalRequestException(message);
                 case "60082": throw new AuthyLandLineSmsNotAllowedException(message);
                 case "60083": throw new AuthyPhoneNumberNotProvisionedWithAnyCarrierException(message);
                 case "60085": throw new AuthyOneTouchNotEnabledException(message);
