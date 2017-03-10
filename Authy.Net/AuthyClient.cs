@@ -271,6 +271,107 @@ namespace Authy.Net
             });
         }
 
+        /// <summary>
+        /// This will request a verification code to be sent to a user.
+        /// </summary>
+        /// <param name="via">Either "sms" or "call".</param>
+        /// <param name="phoneNumber">The phone number to send the verification code.</param>
+        /// <param name="countryCode">The phone's country code.</param>
+        /// <param name="locale">The phone's country code.
+        /// The language of the message received by user. If no locale is given, Authy will try to autodetect it based on the country code. 
+        /// In case that no locale is autodetected, English will be used. Supported languages include: English (en), Arabic (ar), Catalan (ca), 
+        /// Danish (da), German (de), Spanish (es), Greek (el), Finnish (fi), French (fr) , Hebrew (he), Hindi (hi), Hungarian (hu), Indonesian (id), 
+        /// Italian (it), Japanese (ja), Korean (ko), Norwegian (nb), Dutch (nl), Polish (pl), Portuguese (pt), Romanian (ro), Russian (ru), Swedish (sv), 
+        /// Thai (th), Tagalog (tl), Turkish (tr), Vietnamese (vi), Mandarin (zh-CN),Cantonese (zh-HK). We support the format country-region as described in 
+        /// IETF's BPC 47. If no region is given (or supported), there will be a default by country.
+        /// </param>
+        /// <param name="codeLength">Optional value to change the number of verification digits sent. Default is 4. Allowed values are 4-10.</param>
+        /// <param name="customMessage">
+        /// Not available by default. Overwrites the default message sent sms or phone call. To request access please contact Authy sales with a business use 
+        /// case that requires a nonstandard message. You can inject a phone verification code in the message by using the string {{code}} were you'd like to 
+        /// insert it. IMPORTANT: If the via parameter is set to "call", the locale parameter is mandatory. The following languages are supported for call 
+        /// custom_messages: English (en), Spanish (es), Portuguese (pt), German (de), French (fr),Italian (it), Daniesh (da),German (de),Finish (fi), Japanese (ja), 
+        /// Korean (ko), Norwegian (nb), Deutch (nl), Polish (pl), Russian (ru), Swedish (sv), Mandarin (zh-CN),Cantonese (zh-HK). We support the format country-region as 
+        /// described in IETF's BPC 47. If no region is given (or supported), there will be a default by country.
+        /// </param>
+        /// <returns>PhoneVerificationRequestResult object containing details about the number.</returns>
+        /// <exception cref="AuthyInvalidPhoneNumberException">If the phone number is invalid.</exception>
+        /// <exception cref="AuthyPhoneVerificationCouldNotBeCreatedException">If an error occured when initiating the verification. Check your input data.</exception>
+        public PhoneVerificationRequestResult RequestPhoneVerification(string via, string phoneNumber, int countryCode, string locale = null, int? codeLength = null, string customMessage = null)
+        {
+            var request = new NameValueCollection()
+            {
+                {"api_key", _apiKey},
+                {"via", via},
+                {"country_code", countryCode.ToString()},
+                {"phone_number", phoneNumber}
+            };
+
+            if (locale != null)
+            {
+                request.Add(new NameValueCollection
+                {
+                    {"locale", locale}
+                });
+            }
+
+            if (codeLength != null)
+            {
+                request.Add(new NameValueCollection
+                {
+                    {"code_length", codeLength.ToString()}
+                });
+            }
+
+            if (customMessage != null)
+            {
+                request.Add(new NameValueCollection
+                {
+                    {"custom_message", customMessage}
+                });
+            }
+
+            var url = string.Format("{0}/protected/json/phones/verification/start", BaseUrl);
+
+            return Execute(client =>
+            {
+                var response = client.UploadValues(url, request);
+                var textResponse = Encoding.ASCII.GetString(response);
+
+                var apiResponse = JsonConvert.DeserializeObject<PhoneVerificationRequestResult>(textResponse);
+                apiResponse.RawResponse = textResponse;
+                apiResponse.Status = AuthyStatus.Success;
+
+                return apiResponse;
+            });
+        }
+
+        /// <summary>
+        /// Verify a phone verification code previously sent to the user
+        /// </summary>
+        /// <param name="phoneNumber">The phone number where the verification code was sent.</param>
+        /// <param name="countryCode"></param>
+        /// <param name="verificationCode">The verification code that is being validated.</param>
+        /// <returns>RegisterUserResult object containing the details about the attempted register user request</returns>
+        /// <exception cref="AuthyVerificationCodeIsIncorrectException">If the code is invalid.</exception>
+        /// <exception cref="AuthyInvalidPhoneNumberException">If the phone number is invalid.</exception>
+        /// <exception cref="AuthyPhoneVerificationNotFoundException">If no verification request for the provided number exists.</exception>
+        public PhoneVerificationCheckResult VerifyPhoneVerification(string phoneNumber, int countryCode, string verificationCode)
+        {
+            var url = string.Format("{0}/protected/json/phones/verification/check?api_key={1}&country_code={2}&phone_number={3}&verification_code={4}", 
+                BaseUrl, _apiKey, countryCode, phoneNumber, verificationCode);
+
+            return Execute(client =>
+            {
+                var response = client.DownloadString(url);
+                var apiResponse = JsonConvert.DeserializeObject<PhoneVerificationCheckResult>(response);
+                apiResponse.RawResponse = response;
+                apiResponse.Status = AuthyStatus.Success;
+
+                return apiResponse;
+            });
+        }
+
         private TResult Execute<TResult>(Func<WebClient, TResult> execute)
             where TResult : AuthyResult, new()
         {

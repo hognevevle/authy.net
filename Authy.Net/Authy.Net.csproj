@@ -52,8 +52,10 @@
     <Compile Include="AuthyClient.cs" />
     <Compile Include="Models\CheckApprovalRequestStatusResult.cs" />
     <Compile Include="Models\CreateApprovalRequestResult.cs" />
+    <Compile Include="Models\PhoneVerificationCheckResult.cs" />
     <Compile Include="Models\RegisterUserResult.cs" />
     <Compile Include="Models\SendSmsResult.cs" />
+    <Compile Include="Models\PhoneVerificationRequestResult.cs" />
     <Compile Include="Models\StartPhoneCallResult.cs" />
     <Compile Include="Models\UserStatusResult.cs" />
     <Compile Include="Models\VerifyTokenResult.cs" />
