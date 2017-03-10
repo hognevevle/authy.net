@@ -66,7 +66,7 @@ namespace Authy.Net.Tests
         [ExpectedException(typeof(AuthyInvalidApiKeyException), "An invalid api key was inappropriately allowed.")]
         public void Registration_BadApiKey()
         {
-            var client = new AuthyClient(badApiKey, true);
+            var client = new AuthyClient(badApiKey);
             var result = client.RegisterUser("test@test.com", "123-456-7890");
             Assert.AreEqual(AuthyStatus.Unauthorized, result.Status);
             
@@ -98,7 +98,7 @@ namespace Authy.Net.Tests
         [TestMethod]
         public void Verification_BadApiKey()
         {
-            var client = new AuthyClient(badApiKey, true);
+            var client = new AuthyClient(badApiKey);
             var result = client.VerifyToken("1", "0000000");
 
             Assert.AreEqual(AuthyStatus.Unauthorized, result.Status);
@@ -114,7 +114,7 @@ namespace Authy.Net.Tests
 
         private AuthyClient GoodApiKeyClient
         {
-            get { return new AuthyClient(goodApiKey, true); }
+            get { return new AuthyClient(goodApiKey); }
         }
     }
 }

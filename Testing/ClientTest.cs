@@ -25,7 +25,7 @@ namespace Testing {
         const string invalidApiKey = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 
         private AuthyClient ValidAuthyClient {
-            get { return new AuthyClient(validApiKey, true); }
+            get { return new AuthyClient(validApiKey); }
         }
 
         [Test]
@@ -63,7 +63,7 @@ namespace Testing {
 
         [Test]
         public void Registration_InvalidApiKey() {
-            var client = new AuthyClient(invalidApiKey, true);
+            var client = new AuthyClient(invalidApiKey);
             var result = client.RegisterUser("test@test.com", "317-338-9302", 93);
 
             Assert.AreEqual(AuthyStatus.Unauthorized, result.Status);
@@ -95,7 +95,7 @@ namespace Testing {
 
         [Test]
         public void Verification_InvalidApiKey() {
-            var client = new AuthyClient(invalidApiKey, true);
+            var client = new AuthyClient(invalidApiKey);
             var result = client.VerifyToken("1", "0000000");
 
             Assert.AreEqual(result.Status, AuthyStatus.Unauthorized);

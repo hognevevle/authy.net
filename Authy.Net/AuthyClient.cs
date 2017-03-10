@@ -5,7 +5,6 @@ using System.Text;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Linq;
 using Authy.Net.Helpers;
 using Authy.Net.Models;
 
@@ -21,22 +20,17 @@ namespace Authy.Net
     /// </remarks>
     public class AuthyClient
     {
-        private readonly string apiKey;
-        private readonly bool test;
+        private readonly string _apiKey;
 
-        private string BaseUrl => test
-            ? "http://sandbox-api.authy.com"
-            : "https://api.authy.com";
+        private static string BaseUrl => "https://api.authy.com";
 
         /// <summary>
         /// Creates an instance of the Authy client
         /// </summary>
         /// <param name="apiKey">The api key used to access the rest api</param>
-        /// <param name="test">indicates that the sandbox should be used</param>
-        public AuthyClient(string apiKey, bool test = false)
+        public AuthyClient(string apiKey)
         {
-            this.apiKey = apiKey;
-            this.test = test;
+            _apiKey = apiKey;
         }
 
         /// <summary>
@@ -48,15 +42,15 @@ namespace Authy.Net
         /// <returns>RegisterUserResult object containing the details about the attempted register user request</returns>
         public RegisterUserResult RegisterUser(string email, string cellPhoneNumber, int countryCode = 1)
         {
-            var request = new System.Collections.Specialized.NameValueCollection()
+            var request = new NameValueCollection()
             {
                 {"user[email]", email},
                 {"user[cellphone]",cellPhoneNumber},
                 {"user[country_code]",countryCode.ToString()}
             };
 
-            var url = string.Format("{0}/protected/json/users/new?api_key={1}", this.BaseUrl, this.apiKey);
-            return this.Execute<RegisterUserResult>(client =>
+            var url = string.Format("{0}/protected/json/users/new?api_key={1}", BaseUrl, _apiKey);
+            return Execute(client =>
             {
                 var response = client.UploadValues(url, request);
                 var textResponse = Encoding.ASCII.GetString(response);
@@ -77,7 +71,7 @@ namespace Authy.Net
         /// <returns>RegisterUserResult object containing the details about the attempted register user request</returns>
         public UserStatusResult GetUserStatus(string userId)
         {
-            var url = string.Format("{0}/protected/json/users/{1}/status?api_key={2}", this.BaseUrl, userId, this.apiKey);
+            var url = string.Format("{0}/protected/json/users/{1}/status?api_key={2}", BaseUrl, userId, _apiKey);
 
             return Execute(client =>
             {
@@ -102,7 +96,7 @@ namespace Authy.Net
 
             return Execute(client =>
             {
-                client.Headers.Add("X-Authy-API-Key", apiKey);
+                client.Headers.Add("X-Authy-API-Key", _apiKey);
                 var response = client.UploadString(url, "");
 
                 var apiResponse = JsonConvert.DeserializeObject<AuthyResult>(response);
@@ -129,8 +123,9 @@ namespace Authy.Net
             token = AuthyHelpers.SanitizeNumber(token);
             userId = AuthyHelpers.SanitizeNumber(userId);
 
-            var url = string.Format("{0}/protected/json/verify/{1}/{2}?api_key={3}{4}", this.BaseUrl, token, userId, this.apiKey, force ? "&force=true" : string.Empty);
-            return this.Execute<VerifyTokenResult>(client =>
+            var url = string.Format("{0}/protected/json/verify/{1}/{2}?api_key={3}{4}", BaseUrl, token, userId, _apiKey, force ? "&force=true" : string.Empty);
+
+            return Execute(client =>
             {
                 var response = client.DownloadString(url);
 
@@ -161,8 +156,9 @@ namespace Authy.Net
         {
             userId = AuthyHelpers.SanitizeNumber(userId);
 
-            var url = string.Format("{0}/protected/json/sms/{1}?api_key={2}{3}", this.BaseUrl, userId, this.apiKey, force ? "&force=true" : string.Empty);
-            return this.Execute<SendSmsResult>(client =>
+            var url = string.Format("{0}/protected/json/sms/{1}?api_key={2}{3}", BaseUrl, userId, _apiKey, force ? "&force=true" : string.Empty);
+
+            return Execute(client =>
             {
                 var response = client.DownloadString(url);
 
@@ -183,8 +179,9 @@ namespace Authy.Net
         {
             userId = AuthyHelpers.SanitizeNumber(userId);
 
-            var url = string.Format("{0}/protected/json/call/{1}?api_key={2}{3}", this.BaseUrl, userId, this.apiKey, force ? "&force=true" : string.Empty);
-            return this.Execute<AuthyResult>(client =>
+            var url = string.Format("{0}/protected/json/call/{1}?api_key={2}{3}", BaseUrl, userId, _apiKey, force ? "&force=true" : string.Empty);
+
+            return Execute(client =>
             {
                 var response = client.DownloadString(url);
 
@@ -212,7 +209,7 @@ namespace Authy.Net
         {
             var request = new NameValueCollection()
             {
-                {"api_key", apiKey},
+                {"api_key", _apiKey},
                 {"message", message},
                 {"seconds_to_expire", secondsToExpire.ToString()}
             };
@@ -261,7 +258,7 @@ namespace Authy.Net
         /// <returns>RegisterUserResult object containing the details about the attempted register user request</returns>
         public CheckApprovalRequestStatusResult CheckApprovalRequestStatus(string uuid)
         {
-            var url = string.Format("{0}/onetouch/json/approval_requests/{1}?api_key={2}", BaseUrl, uuid, apiKey);
+            var url = string.Format("{0}/onetouch/json/approval_requests/{1}?api_key={2}", BaseUrl, uuid, _apiKey);
 
             return Execute(client =>
             {
