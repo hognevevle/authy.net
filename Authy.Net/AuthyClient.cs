@@ -40,6 +40,9 @@ namespace Authy.Net
         /// <param name="cellPhoneNumber">Cell phone number</param>
         /// <param name="countryCode">Country code</param>
         /// <returns>RegisterUserResult object containing the details about the attempted register user request</returns>
+        /// <exception cref="AuthyInvalidPhoneNumberException">If the phone number is invalid.</exception>
+        /// <exception cref="AuthyInvalidEmailException">If the email is invalid.</exception>
+        /// <exception cref="AuthyInvalidCountryCodeException">If the country code is invalid.</exception>
         public RegisterUserResult RegisterUser(string email, string cellPhoneNumber, int countryCode = 1)
         {
             var request = new NameValueCollection()
@@ -304,6 +307,7 @@ namespace Authy.Net
         /// <returns>The response will include the carrier, whether the number is a cellphone or not, the verification code expiration time, the request UUID and the request status.</returns>
         /// <exception cref="AuthyInvalidPhoneNumberException">If the phone number is invalid.</exception>
         /// <exception cref="AuthyPhoneVerificationCouldNotBeCreatedException">If an error occured when initiating the verification. Check your input data.</exception>
+        /// <exception cref="AuthyInvalidCountryCodeException">If the country code is invalid.</exception>
         public PhoneVerificationRequestResult RequestPhoneVerification(string via, string phoneNumber, int countryCode, string locale = null, int? codeLength = null, string customMessage = null)
         {
             var request = new NameValueCollection()
@@ -363,6 +367,7 @@ namespace Authy.Net
         /// <exception cref="AuthyVerificationCodeIsIncorrectException">If the code is invalid.</exception>
         /// <exception cref="AuthyInvalidPhoneNumberException">If the phone number is invalid.</exception>
         /// <exception cref="AuthyPhoneVerificationNotFoundException">If no verification request for the provided number exists, or request has expired.</exception>
+        /// <exception cref="AuthyInvalidCountryCodeException">If the country code is invalid.</exception>
         public PhoneVerificationCheckResult VerifyPhoneVerification(string phoneNumber, int countryCode, string verificationCode)
         {
             var url = string.Format("{0}/protected/json/phones/verification/check?api_key={1}&country_code={2}&phone_number={3}&verification_code={4}", 

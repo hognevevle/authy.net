@@ -65,7 +65,7 @@
         /// <exception cref="AuthyOneTouchEnableFailedException"></exception>
         /// <exception cref="AuthyOneTouchMustBeEnabledException"></exception>
         /// <exception cref="AuthyCallbackInformationSaveFailedException"></exception>
-        /// <exception cref="AuthyAccessBlockedForMultiDeviceUser"></exception>
+        /// <exception cref="AuthyAccessBlockedForMultiDeviceUserException"></exception>
         /// <exception cref="AuthyRegistrationDeviceUpdateFailedException"></exception>
         /// <exception cref="AuthyAccessKeyCanNotBeSavedException"></exception>
         /// <exception cref="AuthyInvalidApplicationException"></exception>
@@ -75,7 +75,7 @@
         /// <exception cref="AuthyAccessKeyInsufficientPermissionsException"></exception>
         /// <exception cref="AuthyApplicationCouldNotBeDeletedException"></exception>
         /// <exception cref="AuthyInvalidCountryCodeException"></exception>
-        /// <exception cref="AuthyInvalidApprovalRequest"></exception>
+        /// <exception cref="AuthyInvalidApprovalRequestException"></exception>
         /// <exception cref="AuthyLandLineSmsNotAllowedException"></exception>
         /// <exception cref="AuthyPhoneNumberNotProvisionedWithAnyCarrierException"></exception>
         /// <exception cref="AuthyOneTouchNotEnabledException"></exception>
