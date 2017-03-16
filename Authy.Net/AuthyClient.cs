@@ -268,6 +268,11 @@ namespace Authy.Net
         /// <exception cref="AuthyOneTouchDeviceNotFoundException">User does not have OneTouch device for given application.</exception>
         public CheckApprovalRequestStatusResult CheckApprovalRequestStatus(string uuid)
         {
+            if (string.IsNullOrEmpty(uuid))
+            {
+                throw new AuthyOneTouchApprovalRequestNotFoundException("uuid was missing.");
+            }
+
             var url = string.Format("{0}/onetouch/json/approval_requests/{1}?api_key={2}", BaseUrl, uuid, _apiKey);
 
             return Execute(client =>
