@@ -12,7 +12,7 @@ This is released under an MIT license. See the file LICENSE.txt for more informa
 ## Documentation
 The API is really simple and corresponds to the [Authy Documentation]
 
-Create an instance of the client. You must provide your API key and indicate if this is to run in test mode or not.
+Create an instance of the client. You must provide your API key.
 
 ```
 var client = new AuthyClient("my key");
