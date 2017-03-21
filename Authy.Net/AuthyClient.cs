@@ -181,12 +181,14 @@ namespace Authy.Net
         /// Send the token via phone call to a user who isn't registered.  If the user is registered with a mobile app then the phone call will be ignored.
         /// </summary>
         /// <param name="userId">The user ID to send the phone call to</param>
+        /// <param name="locale">Force a specific locale. Will be auto-detected based on the phone number country if not provided</param>
         /// <param name="force">Force to the phone call to be sent even if the user is already registered as an app user. This will incrase your costs</param>
-        public AuthyResult StartPhoneCall(string userId, bool force = false)
+        public AuthyResult StartPhoneCall(string userId, string locale = null, bool force = false)
         {
             userId = AuthyHelpers.SanitizeNumber(userId);
 
-            var url = string.Format("{0}/protected/json/call/{1}?api_key={2}{3}", BaseUrl, userId, _apiKey, force ? "&force=true" : string.Empty);
+            var url = string.Format("{0}/protected/json/call/{1}?api_key={2}{3}{4}", 
+                BaseUrl, userId, _apiKey, !string.IsNullOrEmpty(locale) ? "&locale=" + locale : string.Empty, force ? "&force=true" : string.Empty);
 
             return Execute(client =>
             {

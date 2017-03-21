@@ -135,7 +135,7 @@ namespace Testing {
         [Test]
         public void Start_PhoneCall() {
             var client = this.ValidAuthyClient;
-            var result = client.StartPhoneCall("1", false);
+            var result = client.StartPhoneCall("1", force: false);
 
             Assert.AreEqual(result.Message, "Call started...");
         }
