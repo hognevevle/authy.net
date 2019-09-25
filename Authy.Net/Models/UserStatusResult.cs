@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Authy.Net.Models
 {
@@ -66,6 +67,6 @@ namespace Authy.Net.Models
         /// Detailed device information
         /// </summary>
         [JsonProperty("detailed_devices")]
-        public List<Dictionary<string, string>> DetailedDevices { get; set; }
+        public List<Dictionary<string, JToken>> DetailedDevices { get; set; }
     }
 }
